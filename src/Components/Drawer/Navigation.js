@@ -60,6 +60,11 @@ const RegisterStack = createStackNavigator({
   HomeScreen: {
     screen: Home,
   },
+  LoginScreen: {
+    screen: Login,
+  },
+}, {
+  headerMode: 'none',
 });
 
 const ChatStack = createStackNavigator({

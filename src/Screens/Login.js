@@ -23,7 +23,7 @@ import {
   Input,
 } from 'native-base';
 import { Image, View, Keyboard, Alert } from 'react-native';
-import { BGColors, ContainerView } from '../Global/Style/init';
+import { BGColors } from '../Global/Style/init';
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
 import { login } from '../Utils/Services/initialize';
@@ -41,7 +41,7 @@ class Login extends Component {
     super(props);
 
     this.state = {
-      username: '',
+      email: '',
       password: '',
       isLoading: false,
       isSubmit: false,
@@ -61,7 +61,7 @@ class Login extends Component {
 
   clearState () {
     this.setState({
-      username: '',
+      email: '',
       password: '',
     });
   }
@@ -72,7 +72,7 @@ class Login extends Component {
         isLoading: true,
         isAuth: true,
       });
-      const responseFirebase = await login(this.state.username, this.state.password);
+      const responseFirebase = await login(this.state.email, this.state.password);
       await this.clearState();
       if (responseFirebase) {
         await this.props.auth(responseFirebase.user);
@@ -180,17 +180,17 @@ class Login extends Component {
                 rounded
               >
                 <Icon
-                  type='AntDesign'
-                  name='user'
+                  type='MaterialCommunityIcons'
+                  name='email'
                   style={{
                     paddingRight: 10,
                   }}
                 />
                 <Input
-                  placeholder='Username'
-                  value={this.state.username}
+                  placeholder='Email'
+                  value={this.state.email}
                   onChangeText={value => this.setState({
-                    username: value,
+                    email: value,
                   })}
                 />
               </Item>
