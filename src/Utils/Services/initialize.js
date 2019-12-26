@@ -17,12 +17,15 @@ module.exports = {
     firebase.database().ref(endpoint).on('value', updaterFn);
     return () => firebase.database().ref(endpoint).off();
   },
+  setData : (endpoint, data) => {
+    return firebase.database().ref(endpoint).set(data);
+  },
   pushData: (endpoint, data) => {
     return firebase.database().ref(endpoint).push(data);
   },
   login: (email, pass) =>
     firebase.auth()
       .signInWithEmailAndPassword(email, pass),
-  signup : (email, pass) =>
-    firebase.auth().createUserWithEmailAndPassword(email, pass)
+  signup: (email, pass) =>
+    firebase.auth().createUserWithEmailAndPassword(email, pass),
 };

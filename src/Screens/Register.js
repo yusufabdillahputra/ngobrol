@@ -20,13 +20,13 @@ import {
   Icon,
   Form,
   Item,
-  Input,
+  Input
 } from 'native-base';
 import { Image, View, Keyboard, Alert } from 'react-native';
-import { BGColors, ContainerView } from '../Global/Style/init';
+import { BGColors } from '../Global/Style/init';
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
-import { login, signup } from '../Utils/Services/initialize';
+import { setData, signup } from '../Utils/Services/initialize';
 
 class Register extends Component {
   constructor (props) {
@@ -36,8 +36,8 @@ class Register extends Component {
       email: '',
       password: '',
       isLoading: false,
-      isSubmit: false
-    }
+      isSubmit: false,
+    };
   }
 
   async componentDidUpdate (prevProps, prevState) {
@@ -49,7 +49,7 @@ class Register extends Component {
     }
   }
 
-  async register() {
+  async register () {
     try {
       await this.setState({
         isLoading: true,
@@ -58,6 +58,16 @@ class Register extends Component {
       const responseFirebase = await signup(this.state.email, this.state.password);
       await this.clearState();
       if (responseFirebase) {
+        const uid = await responseFirebase.user.uid;
+        const email = await responseFirebase.user.email;
+        await setData('profiles', {
+          [uid] : {
+            email: email,
+          }
+        });
+        await setData('messages', {
+          [uid] : true
+        });
         await this.props.navigation.replace('LoginScreen');
       } else {
         await Alert.alert(
@@ -198,7 +208,6 @@ class Register extends Component {
                 />
               </Item>
             </Form>
-
             <Button
               block
               rounded

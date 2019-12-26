@@ -78,6 +78,9 @@ class Login extends Component {
         await this.props.auth(responseFirebase.user);
         await this.props.navigation.replace('HomeScreen');
       } else {
+        await this.setState({
+          isLoading: false,
+        });
         await Alert.alert(
           'Error',
           'Oops.. something error',
@@ -91,6 +94,9 @@ class Login extends Component {
         );
       }
     } catch ({message}) {
+      await this.setState({
+        isLoading: false,
+      });
       Alert.alert(
         'Unauthorized',
         message,
