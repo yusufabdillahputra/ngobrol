@@ -77,7 +77,7 @@ class Chat extends Component {
                 transparent
                 iconRight
                 onPress={
-                  () => this.props.navigation.navigate('HomeScreen')
+                  () => this.props.navigation.goBack()
                 }
               >
                 <Icon
