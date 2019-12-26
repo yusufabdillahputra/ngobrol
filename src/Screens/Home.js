@@ -42,11 +42,14 @@ import {
  * Redux
  */
 import { connect } from 'react-redux';
+import OneSignal from 'react-native-onesignal';
 
 class Home extends Component {
 
   constructor (props) {
     super(props);
+
+    OneSignal.init("772770d4-e3c9-4930-a646-6a7081ca1050");
 
     this.state = {
       isAuth: null,
