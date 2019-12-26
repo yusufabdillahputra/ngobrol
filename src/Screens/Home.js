@@ -90,7 +90,6 @@ class Home extends Component {
           });
         }
       });
-      await console.log(this.state.friendList);
     }
     if (reduxAuth === null) {
       await this.setState({
