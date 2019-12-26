@@ -13,11 +13,12 @@ module.exports = {
     };
     firebase.initializeApp(firebaseConfig);
   },
+  db: () => firebase.database(),
   setListener: (endpoint, updaterFn) => {
     firebase.database().ref(endpoint).on('value', updaterFn);
     return () => firebase.database().ref(endpoint).off();
   },
-  setData : (endpoint, data) => {
+  setData: (endpoint, data) => {
     return firebase.database().ref(endpoint).set(data);
   },
   pushData: (endpoint, data) => {

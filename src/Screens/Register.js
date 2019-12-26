@@ -20,7 +20,7 @@ import {
   Icon,
   Form,
   Item,
-  Input
+  Input,
 } from 'native-base';
 import { Image, View, Keyboard, Alert } from 'react-native';
 import { BGColors } from '../Global/Style/init';
@@ -60,16 +60,19 @@ class Register extends Component {
       if (responseFirebase) {
         const uid = await responseFirebase.user.uid;
         const email = await responseFirebase.user.email;
-        await setData('profiles', {
-          [uid] : {
-            email: email,
-          }
+        await setData('messages/' + uid, {
+          isRegister: true,
         });
-        await setData('messages', {
-          [uid] : true
+        await setData('users/' + uid, {
+          uid_users: uid,
+          email_users: email,
+          photo_users: null,
         });
         await this.props.navigation.replace('LoginScreen');
       } else {
+        await this.setState({
+          isLoading: false,
+        });
         await Alert.alert(
           'Error',
           'Oops.. something error',
@@ -83,6 +86,9 @@ class Register extends Component {
         );
       }
     } catch ({message}) {
+      await this.setState({
+        isLoading: false,
+      });
       Alert.alert(
         'Error',
         message,
