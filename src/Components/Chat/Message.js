@@ -9,7 +9,6 @@ const Message = ({item}) => (
     styles.incomingMessage,
   ]}>
     <Text>{item.message}</Text>
-    <Text>{item.message}</Text>
   </View>
 );
 

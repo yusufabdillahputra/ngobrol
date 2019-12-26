@@ -24,12 +24,16 @@ class Compose extends React.Component {
     Keyboard.dismiss();
   }
 
-  postMessage (message) {
+  async postMessage (message) {
     if (Boolean(message)) {
-      pushData('messages/'+this.props.idMessage, {
+      await pushData('messages/' + this.props.uidUser + '/friendList/' + this.props.uidFriend + '/data', {
         incoming: false,
-        message
-      })
+        message: message,
+      });
+      await pushData('messages/' + this.props.uidFriend + '/friendList/' + this.props.uidUser + '/data', {
+        incoming: true,
+        message: message,
+      });
     }
   }
 

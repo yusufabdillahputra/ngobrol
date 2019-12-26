@@ -1,6 +1,9 @@
 /**
  * @format
  */
+console.ignoredYellowBox = [
+  'Setting a timer'
+]
 
 import { AppRegistry } from 'react-native';
 import 'react-native-gesture-handler';

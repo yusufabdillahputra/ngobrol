@@ -24,6 +24,9 @@ const HomeStack = createStackNavigator({
   LoginScreen: {
     screen: Login,
   },
+  ChatScreen: {
+    screen: Chat,
+  },
 }, {
   headerMode: 'none',
 });
@@ -81,6 +84,7 @@ const MyStack = createStackNavigator({
   LoginStack,
   ProfileStack,
   RegisterStack,
+  ChatStack
 }, {
   initialRouteName: HomeStack.HomeScreen,
   headerMode: 'none',

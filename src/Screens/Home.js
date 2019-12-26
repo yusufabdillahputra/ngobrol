@@ -20,14 +20,24 @@ import {
   Right,
   Fab,
   Form,
-  Input, Item,
+  Input,
+  Item,
+  List,
+  ListItem,
+  Thumbnail,
 } from 'native-base';
 import {
   Modal,
   Alert,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
-import { Image } from 'react-native';
-import { db, setData, pushData, setListener } from '../Utils/Services/initialize';
+import {
+  db,
+  setData,
+  pushData,
+  setListener,
+} from '../Utils/Services/initialize';
 
 /**
  * Redux
@@ -44,7 +54,7 @@ class Home extends Component {
       uid: null,
       email: null,
       friendList: null,
-      modalVisible: true,
+      modalVisible: false,
       emailAddFriend: null,
     };
   }
@@ -58,10 +68,29 @@ class Home extends Component {
         email: reduxAuth.email,
       });
       await setListener('messages/' + this.state.uid, (snapshot) => {
-        this.setState({
-          friendList: Object.values(snapshot.val()),
-        });
+        if (typeof snapshot.val().friendList != 'undefined') {
+          const keyFriendList = Object.keys(snapshot.val().friendList);
+          const valueFriendList = Object.values(snapshot.val().friendList);
+          const mergeValueList = [];
+          valueFriendList.map((item, index) => {
+            const uid = keyFriendList[index];
+            db().ref('users/' + uid).once('value')
+              .then(snapshot => {
+                mergeValueList.push({
+                  uid: uid,
+                  data: snapshot.val(),
+                });
+              })
+              .catch(error => {
+                console.log(error);
+              });
+          });
+          this.setState({
+            friendList: mergeValueList,
+          });
+        }
       });
+      await console.log(this.state.friendList);
     }
     if (reduxAuth === null) {
       await this.setState({
@@ -81,11 +110,11 @@ class Home extends Component {
         const db_users = await Object.values(snapshot.val());
         const friend = await db_users.find(item => item.email_users === this.state.emailAddFriend);
         if (friend.uid_users !== undefined) {
-          db().ref('messages/'+this.state.uid).once('value')
+          db().ref('messages/' + this.state.uid).once('value')
             .then(async snapshot => {
               if (typeof snapshot.val().friendList != 'undefined') {
                 const friendList = Object.keys(snapshot.val().friendList);
-                const cekFriendList = friendList.find(item => item === friend.uid_users)
+                const cekFriendList = friendList.find(item => item === friend.uid_users);
                 if (cekFriendList !== undefined) {
                   Alert.alert(
                     'Oops..',
@@ -131,7 +160,6 @@ class Home extends Component {
                     {cancelable: false},
                   );
 
-
                 }
               }
             })
@@ -147,7 +175,7 @@ class Home extends Component {
                 ],
                 {cancelable: false},
               );
-            })
+            });
         }
       })
       .catch(message => {
@@ -213,8 +241,46 @@ class Home extends Component {
             }
           </Right>
         </Header>
-        <Content padder>
-
+        <Content>
+          {
+            this.state.friendList !== null
+              ? <List>
+                {
+                  this.state.friendList.map((item, index) => {
+                    return (
+                      <ListItem thumbnail key={index}>
+                        <Left>
+                          <Image
+                            style={{
+                              width: 40,
+                              height: 40,
+                              resizeMode: 'center',
+                            }}
+                            source={require('../Global/Assets/Avatar/avatar.jpg')}
+                          />
+                        </Left>
+                        <Body>
+                          <TouchableOpacity
+                            onPress={
+                              () => this.props.navigation.navigate('ChatScreen', {
+                                uidUser : this.state.uid,
+                                uidFriend: item.uid,
+                                emailFriend: item.data.email_users,
+                              })
+                            }
+                          >
+                            <Text>{item.data.email_users}</Text>
+                          </TouchableOpacity>
+                        </Body>
+                      </ListItem>
+                    );
+                  })
+                }
+              </List>
+              : <Text>
+                Data Kosong
+              </Text>
+          }
         </Content>
         <Modal
           animationType="slide"
@@ -236,7 +302,8 @@ class Home extends Component {
               ],
               {cancelable: false},
             );
-          }}>
+          }}
+        >
           <Container>
             <Header
               style={BGColors.primary}

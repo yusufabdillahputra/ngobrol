@@ -36,7 +36,9 @@ class Chat extends Component {
 
     this.state = {
       isLoading: true,
-      idMessage: null,
+      uidUser: null,
+      uidFriend : null,
+      emailFriend: null,
       messages: [],
     };
   }
@@ -44,9 +46,11 @@ class Chat extends Component {
   async componentDidMount () {
     await this.setState({
       isLoading: false,
-      idMessage: '-LwtURKXmLqnt9WGH86K',
+      uidUser: this.props.navigation.state.params.uidUser,
+      uidFriend : this.props.navigation.state.params.uidFriend,
+      emailFriend : this.props.navigation.state.params.emailFriend
     });
-    this.unsubscribeGetMessages = await setListener('messages/'+this.state.idMessage, (snapshot) => {
+    this.unsubscribeGetMessages = await setListener('messages/'+this.state.uidUser+'/friendList/'+this.state.uidFriend+'/data', (snapshot) => {
       this.setState({
         messages: Object.values(snapshot.val()),
       });
@@ -88,7 +92,7 @@ class Chat extends Component {
               }}
             >
               <Title>
-                {this.state.idMessage}
+                {this.state.emailFriend}
               </Title>
             </Body>
           </Header>
@@ -105,7 +109,8 @@ class Chat extends Component {
             style={BGColors.lightgrey}
           >
             <Compose
-              idMessage={this.state.idMessage}
+              uidUser={this.state.uidUser}
+              uidFriend={this.state.uidFriend}
             />
           </Footer>
         </Container>
