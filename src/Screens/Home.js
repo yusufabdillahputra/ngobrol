@@ -23,14 +23,13 @@ import {
   Input,
   Item,
   List,
-  ListItem,
-  Thumbnail,
+  ListItem
 } from 'native-base';
 import {
   Modal,
   Alert,
   Image,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import {
   db,
@@ -55,46 +54,51 @@ class Home extends Component {
       email: null,
       friendList: null,
       modalVisible: false,
-      emailAddFriend: null,
+      modalRefresh: false,
+      emailAddFriend: null
     };
   }
 
   async componentDidMount () {
-    const reduxAuth = await this.props.data.Auth.stateArray;
-    if (reduxAuth !== null) {
-      await this.setState({
-        isAuth: true,
-        uid: reduxAuth.uid,
-        email: reduxAuth.email,
-      });
-      await setListener('messages/' + this.state.uid, (snapshot) => {
-        if (typeof snapshot.val().friendList != 'undefined') {
-          const keyFriendList = Object.keys(snapshot.val().friendList);
-          const valueFriendList = Object.values(snapshot.val().friendList);
-          const mergeValueList = [];
-          valueFriendList.map((item, index) => {
-            const uid = keyFriendList[index];
-            db().ref('users/' + uid).once('value')
-              .then(snapshot => {
-                mergeValueList.push({
-                  uid: uid,
-                  data: snapshot.val(),
+    if (this.props.data.Auth.isFulfilled) {
+      const reduxAuth = await this.props.data.Auth.stateArray;
+      if (reduxAuth !== null || reduxAuth.length !== 0) {
+        await this.setState({
+          isAuth: true,
+          uid: reduxAuth.uid,
+          email: reduxAuth.email,
+        });
+        await setListener('messages/' + this.state.uid, (snapshot) => {
+          if (typeof snapshot.val().friendList != 'undefined') {
+            const keyFriendList = Object.keys(snapshot.val().friendList);
+            const valueFriendList = Object.values(snapshot.val().friendList);
+            const mergeValueList = [];
+            valueFriendList.map((item, index) => {
+              const uid = keyFriendList[index];
+              db().ref('users/' + uid).once('value')
+                .then(snapshot => {
+                  mergeValueList.push({
+                    uid: uid,
+                    data: snapshot.val(),
+                  });
+                })
+                .catch(error => {
+                  console.log(error);
                 });
-              })
-              .catch(error => {
-                console.log(error);
-              });
-          });
-          this.setState({
-            friendList: mergeValueList,
-          });
-        }
-      });
-    }
-    if (reduxAuth === null) {
-      await this.setState({
-        isAuth: false,
-      });
+            });
+            this.setState({
+              friendList: mergeValueList,
+            });
+          }
+        });
+      }
+      if (reduxAuth === false) {
+        await this.setState({
+          isAuth: false,
+        });
+        await this.props.navigation.navigate('LoginScreen');
+      }
+    } else {
       await this.props.navigation.navigate('LoginScreen');
     }
   }
@@ -241,45 +245,44 @@ class Home extends Component {
           </Right>
         </Header>
         <Content>
-          {
-            this.state.friendList !== null
-              ? <List>
-                {
-                  this.state.friendList.map((item, index) => {
-                    return (
-                      <ListItem thumbnail key={index}>
-                        <Left>
-                          <Image
-                            style={{
-                              width: 40,
-                              height: 40,
-                              resizeMode: 'center',
-                            }}
-                            source={require('../Global/Assets/Avatar/avatar.jpg')}
-                          />
-                        </Left>
-                        <Body>
-                          <TouchableOpacity
-                            onPress={
-                              () => this.props.navigation.navigate('ChatScreen', {
-                                uidUser : this.state.uid,
-                                uidFriend: item.uid,
-                                emailFriend: item.data.email_users,
-                              })
-                            }
-                          >
-                            <Text>{item.data.email_users}</Text>
-                          </TouchableOpacity>
-                        </Body>
-                      </ListItem>
-                    );
-                  })
-                }
-              </List>
-              : <Text>
-                Data Kosong
-              </Text>
-          }
+          <List>
+            {
+              this.state.friendList !== null
+                ?
+                this.state.friendList.map((item, index) => {
+                  return (
+                    <ListItem thumbnail key={index}>
+                      <Left>
+                        <Image
+                          style={{
+                            width: 40,
+                            height: 40,
+                            resizeMode: 'center',
+                          }}
+                          source={require('../Global/Assets/Avatar/avatar.jpg')}
+                        />
+                      </Left>
+                      <Body>
+                        <TouchableOpacity
+                          onPress={
+                            () => this.props.navigation.navigate('ChatScreen', {
+                              uidUser : this.state.uid,
+                              uidFriend: item.uid,
+                              emailFriend: item.data.email_users,
+                            })
+                          }
+                        >
+                          <Text>{item.data.email_users}</Text>
+                        </TouchableOpacity>
+                      </Body>
+                    </ListItem>
+                  );
+                })
+                : <Text>
+                  Data Kosong
+                </Text>
+            }
+          </List>
         </Content>
         <Modal
           animationType="slide"
@@ -387,6 +390,12 @@ class Home extends Component {
               </Form>
             </Content>
           </Container>
+        </Modal>
+        <Modal
+          animationType='slide'
+          transparent={true}
+          visible={this.state.modalRefresh}
+        >
         </Modal>
         <Fab
           style={

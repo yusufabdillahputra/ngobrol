@@ -49,6 +49,18 @@ class Login extends Component {
     };
   }
 
+  componentDidMount () {
+    if (this.props.data.Auth.isFulfilled) {
+      const reduxAuth = this.props.data.Auth.stateArray;
+      if (reduxAuth !== null || reduxAuth.length !== 0) {
+        this.setState({
+          isAuth: true
+        });
+        this.props.navigation.replace('HomeScreen');
+      }
+    }
+  }
+
   async componentDidUpdate (prevProps, prevState) {
     if (prevState.isSubmit !== this.state.isSubmit) {
       await this.setState({
@@ -262,8 +274,14 @@ class Login extends Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    data: state,
+  };
+};
+
 const mapDispatchToProps = dispatch => {
   return bindActionCreators({auth}, dispatch);
 };
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
