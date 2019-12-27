@@ -16,6 +16,7 @@ import Home from '../../Screens/Home';
 import Login from '../../Screens/Login';
 import Register from '../../Screens/Register';
 import Profile from '../../Screens/Profile';
+import ProfileFriend from '../../Screens/ProfileFriend';
 
 const HomeStack = createStackNavigator({
   HomeScreen: {
@@ -77,14 +78,28 @@ const ChatStack = createStackNavigator({
   HomeScreen: {
     screen: Home,
   },
+}, {
+  headerMode: 'none',
 });
+
+const ProfileFriendStack = createStackNavigator({
+  ProfileFriendScreen : {
+    screen: ProfileFriend,
+  },
+  HomeScreen: {
+    screen: Home,
+  },
+}, {
+  headerMode: 'none',
+})
 
 const MyStack = createStackNavigator({
   HomeStack,
   LoginStack,
   ProfileStack,
   RegisterStack,
-  ChatStack
+  ChatStack,
+  ProfileFriendStack
 }, {
   initialRouteName: HomeStack.HomeScreen,
   headerMode: 'none',

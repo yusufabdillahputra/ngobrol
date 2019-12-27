@@ -23,7 +23,7 @@ import {
   Input,
   Item,
   List,
-  ListItem
+  ListItem,
 } from 'native-base';
 import {
   Modal,
@@ -238,14 +238,22 @@ class Home extends Component {
                   return (
                     <ListItem thumbnail key={index}>
                       <Left>
-                        <Image
-                          style={{
-                            width: 40,
-                            height: 40,
-                            resizeMode: 'center',
-                          }}
-                          source={require('../Global/Assets/Avatar/avatar.jpg')}
-                        />
+                        <TouchableOpacity
+                          onPress={
+                            () => this.props.navigation.navigate('ProfileFriendScreen', {
+                              uid : item.uid
+                            })
+                          }
+                        >
+                          <Image
+                            style={{
+                              width: 40,
+                              height: 40,
+                              resizeMode: 'center',
+                            }}
+                            source={require('../Global/Assets/Avatar/avatar.jpg')}
+                          />
+                        </TouchableOpacity>
                       </Left>
                       <Body>
                         <TouchableOpacity
@@ -375,12 +383,6 @@ class Home extends Component {
               </Form>
             </Content>
           </Container>
-        </Modal>
-        <Modal
-          animationType='slide'
-          transparent={true}
-          visible={this.state.modalRefresh}
-        >
         </Modal>
         <Fab
           style={

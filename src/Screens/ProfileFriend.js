@@ -19,24 +19,17 @@ import {
   Title,
   Card,
   CardItem,
-  Right,
-  Label,
-  Input,
-  Item,
 } from 'native-base';
-import {
-  Alert,
-  Image,
-} from 'react-native';
 
 /**
  * Components
  */
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
-import { db, setData, users } from '../Utils/Services/initialize';
+import { db } from '../Utils/Services/initialize';
+import { Image } from 'react-native';
 
-class Profile extends Component {
+class ProfileFriend extends Component {
 
   constructor (props) {
     super(props);
@@ -54,64 +47,18 @@ class Profile extends Component {
   }
 
   async componentDidMount () {
-    await users().onAuthStateChanged(async user => {
-      if (user) {
-        await db().ref('users/'+user.uid).on('value', async snapshot => {
-          await this.setState({
-            isLoading: false,
-            UID: snapshot.val().uid_users,
-            email: snapshot.val().email_users,
-            displayName:  snapshot.val().displayName || null,
-            photoUrl: snapshot.val().photoUrl || null,
-            phoneNumber: snapshot.val().phoneNumber || null,
-            latitude: snapshot.val().latitude || null,
-            longitude: snapshot.val().longitude || null
-          });
-        })
-
-
-      } else {
-        this.props.navigation.replace('LoginScreen');
-      }
-    });
-  }
-
-  async onLogout () {
-    users().signOut().then(async (result) => {
+    await db().ref('users/'+this.props.navigation.state.params.uid).on('value', async snapshot => {
       await this.setState({
-        UID: null,
-        email: null,
+        isLoading: false,
+        UID: snapshot.val().uid_users,
+        email: snapshot.val().email_users,
+        displayName:  snapshot.val().displayName || null,
+        photoUrl: snapshot.val().photoUrl || null,
+        phoneNumber: snapshot.val().phoneNumber || null,
+        latitude: snapshot.val().latitude || null,
+        longitude: snapshot.val().longitude || null
       });
-      await this.props.navigation.replace('LoginScreen');
-    }).catch(error => {
-      console.log(error);
-    });
-  }
-
-  onSubmitUpdate = async event => {
-    await setData('users/' + this.state.UID, {
-      uid_users: this.state.UID,
-      email_users: this.state.email,
-      displayName:  this.state.displayName,
-      phoneNumber: this.state.phoneNumber,
-      latitude: this.state.latitude,
-      longitude: this.state.longitude
-    });
-    Alert.alert(
-      'Success',
-      'Profile berhasil dirubah.',
-      [
-        {
-          text: 'Kembali Ke Home',
-          onPress: () => this.props.navigation.navigate('HomeScreen'),
-        },
-        {
-          text: 'Tetap Ubah',
-          style: 'cancel',
-        },
-      ],
-      {cancelable: false},
-    );
+    })
   }
 
   render () {
@@ -219,19 +166,9 @@ class Profile extends Component {
                   />
                 </Left>
                 <Body>
-                  <Item
-                    floatingLabel
-                  >
-                    <Label>Display Name</Label>
-                    <Input
-                      value={this.state.displayName}
-                      onChangeText={
-                        async value => await this.setState({
-                          displayName: value,
-                        })
-                      }
-                    />
-                  </Item>
+                  <Text>
+                    {this.state.displayName || '......'}
+                  </Text>
                 </Body>
               </CardItem>
               <CardItem
@@ -248,19 +185,9 @@ class Profile extends Component {
                   />
                 </Left>
                 <Body>
-                  <Item
-                    floatingLabel
-                  >
-                    <Label>Phone Number</Label>
-                    <Input
-                      value={this.state.phoneNumber}
-                      onChangeText={
-                        async value => await this.setState({
-                          phoneNumber: value,
-                        })
-                      }
-                    />
-                  </Item>
+                  <Text>
+                    {this.state.phoneNumber || '......'}
+                  </Text>
                 </Body>
               </CardItem>
               <CardItem
@@ -276,19 +203,9 @@ class Profile extends Component {
                   </Text>
                 </Left>
                 <Body>
-                  <Item
-                    floatingLabel
-                  >
-                    <Label>Latitude</Label>
-                    <Input
-                      value={this.state.latitude}
-                      onChangeText={
-                        async value => await this.setState({
-                          latitude: value,
-                        })
-                      }
-                    />
-                  </Item>
+                  <Text>
+                    {this.state.latitude || '......'}
+                  </Text>
                 </Body>
               </CardItem>
               <CardItem
@@ -304,51 +221,18 @@ class Profile extends Component {
                   </Text>
                 </Left>
                 <Body>
-                  <Body>
-                    <Item
-                      floatingLabel
-                    >
-                      <Label>Longitude</Label>
-                      <Input
-                        value={this.state.longitude}
-                        onChangeText={
-                          async value => await this.setState({
-                            longitude: value,
-                          })
-                        }
-                      />
-                    </Item>
-                  </Body>
+                  <Text>
+                    {this.state.longitude || '......'}
+                  </Text>
                 </Body>
               </CardItem>
-              <Button
-                full
+              <CardItem
                 style={{
-                  backgroundColor: RawColors.success,
                   borderBottomRightRadius: 8,
                   borderBottomLeftRadius: 8
                 }}
-                onPress={
-                  event => this.onSubmitUpdate(event)
-                }
-              >
-                <Text>
-                  Submit
-                </Text>
-              </Button>
+              />
             </Card>
-            <Button
-              rounded
-              block
-              style={BGColors.danger}
-              onPress={
-                () => this.onLogout()
-              }
-            >
-              <Text>
-                Logout
-              </Text>
-            </Button>
           </Content>
         </Container>
       );
@@ -356,4 +240,4 @@ class Profile extends Component {
   }
 }
 
-export default Profile;
+export default ProfileFriend;
