@@ -18,7 +18,7 @@ import Register from '../../Screens/Register';
 import Profile from '../../Screens/Profile';
 import ProfileFriend from '../../Screens/ProfileFriend';
 
-const HomeStack = createStackNavigator({
+const MyStack = createStackNavigator({
   HomeScreen: {
     screen: Home,
   },
@@ -28,80 +28,17 @@ const HomeStack = createStackNavigator({
   ChatScreen: {
     screen: Chat,
   },
-}, {
-  headerMode: 'none',
-});
-
-const LoginStack = createStackNavigator({
-  LoginScreen: {
-    screen: Login,
-  },
-  HomeScreen: {
-    screen: Home,
-  },
-}, {
-  headerMode: 'none',
-});
-
-const ProfileStack = createStackNavigator({
   ProfileScreen: {
     screen: Profile,
   },
-  HomeScreen: {
-    screen: Home,
-  },
-  LoginScreen: {
-    screen: Login,
-  },
-}, {
-  headerMode: 'none',
-});
-
-const RegisterStack = createStackNavigator({
-  RegisterScreen: {
-    screen: Register,
-  },
-  HomeScreen: {
-    screen: Home,
-  },
-  LoginScreen: {
-    screen: Login,
-  },
-}, {
-  headerMode: 'none',
-});
-
-const ChatStack = createStackNavigator({
-  ChatScreen: {
-    screen: Chat,
-  },
-  HomeScreen: {
-    screen: Home,
-  },
-}, {
-  headerMode: 'none',
-});
-
-const ProfileFriendStack = createStackNavigator({
   ProfileFriendScreen : {
     screen: ProfileFriend,
   },
-  HomeScreen: {
-    screen: Home,
+  RegisterScreen: {
+    screen: Register,
   },
 }, {
-  headerMode: 'none',
-})
-
-const MyStack = createStackNavigator({
-  HomeStack,
-  LoginStack,
-  ProfileStack,
-  RegisterStack,
-  ChatStack,
-  ProfileFriendStack
-}, {
-  initialRouteName: HomeStack.HomeScreen,
+  initialRouteName: 'HomeScreen',
   headerMode: 'none',
 });
 

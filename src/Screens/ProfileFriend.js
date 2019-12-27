@@ -80,7 +80,7 @@ class ProfileFriend extends Component {
                 transparent
                 iconRight
                 onPress={
-                  () => this.props.navigation.navigate('HomeScreen')
+                  () => this.props.navigation.replace('HomeScreen')
                 }
               >
                 <Icon
