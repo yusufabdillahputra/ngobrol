@@ -189,15 +189,21 @@ class Home extends Component {
           androidStatusBarColor={RawColors.primary}
         >
           <Left>
-            <Image
-              style={{
-                marginLeft: 5,
-                width: 40,
-                height: 40,
-                resizeMode: 'center',
-              }}
-              source={require('../Global/Assets/Logo/logo_light.png')}
-            />
+            <TouchableOpacity
+              onPress={
+                () => this.props.navigation.navigate('MapFriendScreen')
+              }
+            >
+              <Image
+                style={{
+                  marginLeft: 5,
+                  width: 40,
+                  height: 40,
+                  resizeMode: 'center',
+                }}
+                source={require('../Global/Assets/Logo/logo_light.png')}
+              />
+            </TouchableOpacity>
           </Left>
           <Right>
             {

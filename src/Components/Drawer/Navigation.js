@@ -17,6 +17,7 @@ import Login from '../../Screens/Login';
 import Register from '../../Screens/Register';
 import Profile from '../../Screens/Profile';
 import ProfileFriend from '../../Screens/ProfileFriend';
+import MapFriend from '../../Screens/MapFriend';
 
 const MyStack = createStackNavigator({
   HomeScreen: {
@@ -31,11 +32,14 @@ const MyStack = createStackNavigator({
   ProfileScreen: {
     screen: Profile,
   },
-  ProfileFriendScreen : {
+  ProfileFriendScreen: {
     screen: ProfileFriend,
   },
   RegisterScreen: {
     screen: Register,
+  },
+  MapFriendScreen: {
+    screen: MapFriend,
   },
 }, {
   initialRouteName: 'HomeScreen',
