@@ -14,6 +14,7 @@ module.exports = {
     firebase.initializeApp(firebaseConfig);
   },
   db: () => firebase.database(),
+  users: () => firebase.auth(),
   setListener: (endpoint, updaterFn) => {
     firebase.database().ref(endpoint).on('value', updaterFn);
     return () => firebase.database().ref(endpoint).off();

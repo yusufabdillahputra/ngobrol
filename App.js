@@ -6,11 +6,8 @@
  */
 
 import React, { Component } from 'react';
-import { initApi } from './src/Utils/Services/api';
-import { PersistGate } from 'redux-persist/integration/react';
-import { Provider } from 'react-redux';
-import configureStore from './src/Utils/Redux/store';
-const {store, persistor} = configureStore();
+import { init } from './src/Utils/Services/initialize';
+
 /**
  * Components
  */
@@ -28,7 +25,7 @@ class App extends Component {
   }
 
   componentDidMount () {
-    initApi();
+    init();
     setTimeout(() => {
       this.setState({
         isSplash: false,
@@ -41,11 +38,7 @@ class App extends Component {
       return <AppSplash/>;
     } else {
       return (
-        <PersistGate persistor={persistor}>
-          <Provider store={store}>
-            <Navigation/>
-          </Provider>
-        </PersistGate>
+        <Navigation/>
       );
     }
   }

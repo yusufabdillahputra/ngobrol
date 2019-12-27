@@ -36,12 +36,9 @@ import {
   setData,
   pushData,
   setListener,
+  users
 } from '../Utils/Services/initialize';
 
-/**
- * Redux
- */
-import { connect } from 'react-redux';
 import OneSignal from 'react-native-onesignal';
 
 class Home extends Component {
@@ -55,7 +52,7 @@ class Home extends Component {
       isAuth: null,
       uid: null,
       email: null,
-      friendList: null,
+      friendList: [],
       modalVisible: false,
       modalRefresh: false,
       emailAddFriend: null
@@ -63,47 +60,32 @@ class Home extends Component {
   }
 
   async componentDidMount () {
-    if (this.props.data.Auth.isFulfilled) {
-      const reduxAuth = await this.props.data.Auth.stateArray;
-      if (reduxAuth !== null || reduxAuth.length !== 0) {
+    await users().onAuthStateChanged(async user  => {
+      if (user) {
         await this.setState({
           isAuth: true,
-          uid: reduxAuth.uid,
-          email: reduxAuth.email,
+          uid: user.uid,
+          email: user.email,
         });
-        await setListener('messages/' + this.state.uid, (snapshot) => {
+        await setListener('messages/' + this.state.uid, async snapshot => {
           if (typeof snapshot.val().friendList != 'undefined') {
-            const keyFriendList = Object.keys(snapshot.val().friendList);
-            const valueFriendList = Object.values(snapshot.val().friendList);
-            const mergeValueList = [];
-            valueFriendList.map((item, index) => {
-              const uid = keyFriendList[index];
-              db().ref('users/' + uid).once('value')
-                .then(snapshot => {
-                  mergeValueList.push({
-                    uid: uid,
-                    data: snapshot.val(),
-                  });
+            const keyFriendList = await Object.keys(snapshot.val().friendList);
+            const valueFriendList = await Object.values(snapshot.val().friendList);
+            await valueFriendList.map( async (item, index) => {
+              const uid = await keyFriendList[index];
+              await db().ref('users/' + uid).on('value', async snapshot => {
+                await this.state.friendList.push({
+                  uid: uid,
+                  data: snapshot.val(),
                 })
-                .catch(error => {
-                  console.log(error);
-                });
-            });
-            this.setState({
-              friendList: mergeValueList,
+              })
             });
           }
         });
+      } else {
+        await this.props.navigation.replace('LoginScreen');
       }
-      if (reduxAuth === false) {
-        await this.setState({
-          isAuth: false,
-        });
-        await this.props.navigation.navigate('LoginScreen');
-      }
-    } else {
-      await this.props.navigation.navigate('LoginScreen');
-    }
+    })
   }
 
   setModalVisible (visible) {
@@ -419,10 +401,5 @@ class Home extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    data: state,
-  };
-};
 
-export default connect(mapStateToProps)(Home);
+export default Home;

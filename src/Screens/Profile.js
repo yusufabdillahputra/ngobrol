@@ -24,12 +24,7 @@ import {
  */
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
-/**
- * Redux
- */
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { auth } from '../Utils/Redux/actions/auth';
+import { users } from '../Utils/Services/initialize';
 
 class Profile extends Component {
 
@@ -40,30 +35,39 @@ class Profile extends Component {
       isLoading: true,
       UID: null,
       email: null,
+      profile: null,
     };
   }
 
   async componentDidMount () {
-    const reduxAuth = await this.props.data.Auth.stateArray;
-    await this.setState({
-      isLoading : false,
-      UID: reduxAuth.uid,
-      email: reduxAuth.email
-    })
+    await users().onAuthStateChanged(async user => {
+      if (user) {
+        await this.setState({
+          isLoading: false,
+          UID: user.uid,
+          email: user.email,
+        });
+      } else {
+        this.props.navigation.replace('LoginScreen');
+      }
+    });
   }
 
   async onLogout () {
-    await this.props.auth()
-    await this.setState({
-      UID: null,
-      email: null,
-    })
-    await this.props.navigation.replace('LoginScreen')
+    users().signOut().then( async (result) => {
+      await this.setState({
+        UID: null,
+        email: null,
+      });
+      await this.props.navigation.replace('LoginScreen');
+    }).catch(error => {
+      console.log(error)
+    });
   }
 
   render () {
     if (this.state.isLoading) {
-      return <ScreenLoading />
+      return <ScreenLoading/>;
     } else {
       return (
         <Container>
@@ -80,7 +84,7 @@ class Profile extends Component {
                 transparent
                 iconRight
                 onPress={
-                  () => this.props.navigation.replace('HomeScreen')
+                  () => this.props.navigation.goBack()
                 }
               >
                 <Icon
@@ -119,14 +123,4 @@ class Profile extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators({auth}, dispatch);
-};
-
-const mapStateToProps = state => {
-  return {
-    data: state,
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default Profile;

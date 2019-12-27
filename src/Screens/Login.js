@@ -26,14 +26,7 @@ import { Image, View, Keyboard, Alert } from 'react-native';
 import { BGColors } from '../Global/Style/init';
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
-import { login } from '../Utils/Services/initialize';
-
-/**
- * Redux
- */
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { auth } from '../Utils/Redux/actions/auth';
+import { login, users } from '../Utils/Services/initialize';
 
 class Login extends Component {
 
@@ -49,16 +42,15 @@ class Login extends Component {
     };
   }
 
-  componentDidMount () {
-    if (this.props.data.Auth.isFulfilled) {
-      const reduxAuth = this.props.data.Auth.stateArray;
-      if (reduxAuth !== null || reduxAuth.length !== 0) {
-        this.setState({
+  async componentDidMount () {
+    await users().onAuthStateChanged(async user  => {
+      if (user) {
+        await this.setState({
           isAuth: true
         });
-        this.props.navigation.replace('HomeScreen');
+        await this.props.navigation.replace('HomeScreen');
       }
-    }
+    })
   }
 
   async componentDidUpdate (prevProps, prevState) {
@@ -87,7 +79,6 @@ class Login extends Component {
       const responseFirebase = await login(this.state.email, this.state.password);
       await this.clearState();
       if (responseFirebase) {
-        await this.props.auth(responseFirebase.user);
         await this.props.navigation.replace('HomeScreen');
       } else {
         await this.setState({
@@ -274,14 +265,4 @@ class Login extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    data: state,
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators({auth}, dispatch);
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;
