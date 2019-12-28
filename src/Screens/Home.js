@@ -98,73 +98,106 @@ class Home extends Component {
         const db_users = await Object.values(snapshot.val());
         const friend = await db_users.find(item => item.email_users === this.state.emailAddFriend);
         if (friend.uid_users !== undefined) {
-          db().ref('messages/' + this.state.uid).once('value')
-            .then(async snapshot => {
-              if (typeof snapshot.val().friendList != 'undefined') {
-                const friendList = Object.keys(snapshot.val().friendList);
-                const cekFriendList = friendList.find(item => item === friend.uid_users);
-                if (cekFriendList !== undefined) {
-                  Alert.alert(
-                    'Oops..',
-                    'Ternyata anda sudah berteman.',
-                    [
-                      {
-                        text: 'Ok',
-                        style: 'cancel',
-                      },
-                    ],
-                    {cancelable: false},
-                  );
-                } else {
-                  await setData('messages/' + this.state.uid + '/friendList/' + friend.uid_users, {
-                    data: true,
-                  });
-                  await pushData('messages/' + this.state.uid + '/friendList/' + friend.uid_users + '/data', {
-                    incoming: false,
-                    message: 'Hi...',
-                  });
+          db().ref('messages/' + this.state.uid).once('value', async snapshot => {
+            if (typeof snapshot.val().friendList != 'undefined') {
+              const friendList = Object.keys(snapshot.val().friendList);
+              const cekFriendList = friendList.find(item => item === friend.uid_users);
+              if (cekFriendList !== undefined) {
+                Alert.alert(
+                  'Oops..',
+                  'Ternyata anda sudah berteman.',
+                  [
+                    {
+                      text: 'Ok',
+                      style: 'cancel',
+                    },
+                  ],
+                  {cancelable: false},
+                );
+              } else {
+                await setData('messages/' + this.state.uid + '/friendList/' + friend.uid_users, {
+                  data: true,
+                });
+                await pushData('messages/' + this.state.uid + '/friendList/' + friend.uid_users + '/data', {
+                  incoming: false,
+                  message: 'Hi...',
+                });
 
-                  await setData('messages/' + friend.uid_users + '/friendList/' + this.state.uid, {
-                    data: true,
-                  });
-                  await pushData('messages/' + friend.uid_users + '/friendList/' + this.state.uid + '/data', {
-                    incoming: true,
-                    message: 'Hi...',
-                  });
+                await setData('messages/' + friend.uid_users + '/friendList/' + this.state.uid, {
+                  data: true,
+                });
+                await pushData('messages/' + friend.uid_users + '/friendList/' + this.state.uid + '/data', {
+                  incoming: true,
+                  message: 'Hi...',
+                });
 
-                  Alert.alert(
-                    'Success',
-                    'Selamat anda sudah bisa mengobrol dengan teman yang anda tambahkan.',
-                    [
-                      {
-                        text: 'Kembali Ke Home',
-                        onPress: () => this.setModalVisible(!this.state.modalVisible),
-                      },
-                      {
-                        text: 'Tambah Lagi',
-                        style: 'cancel',
-                      },
-                    ],
-                    {cancelable: false},
-                  );
+                Alert.alert(
+                  'Success',
+                  'Selamat anda sudah bisa mengobrol dengan teman yang anda tambahkan.',
+                  [
+                    {
+                      text: 'Kembali Ke Home',
+                      onPress: () => this.setModalVisible(!this.state.modalVisible),
+                    },
+                    {
+                      text: 'Tambah Lagi',
+                      style: 'cancel',
+                    },
+                  ],
+                  {cancelable: false},
+                );
 
-                }
               }
-            })
-            .catch(error => {
+            }
+            else {
+              await setData('messages/' + this.state.uid + '/friendList/' + friend.uid_users, {
+                data: true,
+              });
+              await pushData('messages/' + this.state.uid + '/friendList/' + friend.uid_users + '/data', {
+                incoming: false,
+                message: 'Hi...',
+              });
+
+              await setData('messages/' + friend.uid_users + '/friendList/' + this.state.uid, {
+                data: true,
+              });
+              await pushData('messages/' + friend.uid_users + '/friendList/' + this.state.uid + '/data', {
+                incoming: true,
+                message: 'Hi...',
+              });
+
               Alert.alert(
-                'Error',
-                'Oops... sesuatu terjadi dan saya tidak mengerti...',
+                'Success',
+                'Selamat anda sudah bisa mengobrol dengan teman yang anda tambahkan.',
                 [
                   {
-                    text: 'Ok',
+                    text: 'Kembali Ke Home',
+                    onPress: () => this.setModalVisible(!this.state.modalVisible),
+                  },
+                  {
+                    text: 'Tambah Lagi',
                     style: 'cancel',
                   },
                 ],
                 {cancelable: false},
               );
-            });
+            }
+          })
+        } else {
+          Alert.alert(
+            'Error',
+            'Oops... sesuatu terjadi dan saya tidak mengerti...',
+            [
+              {
+                text: 'Ok',
+                style: 'cancel',
+              },
+            ],
+            {cancelable: false},
+          );
         }
+
+
       })
       .catch(message => {
         Alert.alert(
