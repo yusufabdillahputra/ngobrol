@@ -31,7 +31,7 @@ import { login, users, firebase, db } from '../Utils/Services/initialize';
 
 GoogleSignin.configure({
   scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  webClientId: '296953664671-nq47dk8quo60fd0fu62nnoerechu6gc6.apps.googleusercontent.com',
+  webClientId: '99290175334-kg1dn2jsrgmd7qt7rj5kkr1q5oo9rijv.apps.googleusercontent.com',
 });
 
 class Login extends Component {
@@ -137,10 +137,10 @@ class Login extends Component {
       const {idToken, accessToken} = userInfo;
       const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
       await firebase.auth().signInWithCredential(credential)
-        .then(res => {
+        .then(async res => {
           const data = db().ref(`users/${res.user.uid}`);
           if (data) {
-            db().ref('users/' + res.user.uid)
+            await db().ref('users/' + res.user.uid)
               .update({
                 displayName: userInfo.user.name,
                 status: 'Online',
@@ -151,7 +151,7 @@ class Login extends Component {
                 uid_users: res.user.uid,
               });
           } else {
-            db().ref('users/' + res.user.uid)
+            await db().ref('users/' + res.user.uid)
               .set({
                 displayName: userInfo.user.name,
                 status: 'Online',
@@ -350,12 +350,12 @@ class Login extends Component {
                 style={{
                   marginTop: 20,
                   width: '100%',
-                  height: 50
+                  height: 50,
                 }}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Dark}
                 onPress={this.loginGoole}
-                disabled={this.state.isSigninInProgress} />
+                disabled={this.state.isSigninInProgress}/>
             </View>
           </Content>
         </Container>
