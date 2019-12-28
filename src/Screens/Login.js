@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react';
+import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-community/google-signin';
 import { RawColors } from '../Global/Style/init';
 import {
   Container,
@@ -26,7 +27,12 @@ import { Image, View, Keyboard, Alert } from 'react-native';
 import { BGColors } from '../Global/Style/init';
 import ScreenLoading from '../Components/Loading/ScreenLoading';
 
-import { login, users } from '../Utils/Services/initialize';
+import { login, users, firebase, db } from '../Utils/Services/initialize';
+
+GoogleSignin.configure({
+  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+  webClientId: '296953664671-nq47dk8quo60fd0fu62nnoerechu6gc6.apps.googleusercontent.com',
+});
 
 class Login extends Component {
 
@@ -39,18 +45,21 @@ class Login extends Component {
       isLoading: false,
       isSubmit: false,
       isAuth: false,
+      errorMessage: null,
+      Onprosess: false,
+      visible: false,
     };
   }
 
   async componentDidMount () {
-    await users().onAuthStateChanged(async user  => {
+    await users().onAuthStateChanged(async user => {
       if (user) {
         await this.setState({
-          isAuth: true
+          isAuth: true,
         });
         await this.props.navigation.replace('HomeScreen');
       }
-    })
+    });
   }
 
   async componentDidUpdate (prevProps, prevState) {
@@ -113,6 +122,77 @@ class Login extends Component {
       );
     }
   }
+
+  hideToast = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
+  loginGoole = async () => {
+    this.setState({Onprosess: true});
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const {idToken, accessToken} = userInfo;
+      const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+      await firebase.auth().signInWithCredential(credential)
+        .then(res => {
+          const data = db().ref(`users/${res.user.uid}`);
+          if (data) {
+            db().ref('users/' + res.user.uid)
+              .update({
+                displayName: userInfo.user.name,
+                status: 'Online',
+                email_users: userInfo.user.email,
+                photoUrl: userInfo.user.photo,
+                latitude: this.state.latitude || null,
+                longitude: this.state.longitude || null,
+                uid_users: res.user.uid,
+              });
+          } else {
+            db().ref('users/' + res.user.uid)
+              .set({
+                displayName: userInfo.user.name,
+                status: 'Online',
+                email_users: userInfo.user.email,
+                photoUrl: userInfo.user.photo,
+                latitude: this.state.latitude || null,
+                longitude: this.state.longitude || null,
+                uid_users: res.user.uid,
+              });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      this.setState({Onprosess: false});
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        this.setState({Onprosess: false});
+        return;
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        this.setState({
+          errorMessage: 'In Progress..',
+          visible: true,
+          Onprosess: false,
+        }, () => this.hideToast());
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        this.setState({
+          errorMessage: 'Please Install Google Play Services',
+          visible: true,
+          Onprosess: false,
+        }, () => this.hideToast());
+      } else {
+        this.setState({
+          errorMessage: error.code || error.message,
+          visible: true,
+          Onprosess: false,
+        }, () => this.hideToast());
+      }
+    }
+
+  };
 
   onSubmit () {
     Keyboard.dismiss();
@@ -258,6 +338,25 @@ class Login extends Component {
                 Register
               </Text>
             </Button>
+            <View
+              style={{
+                marginTop: 20,
+                borderBottomColor: RawColors.lightgrey,
+                borderBottomWidth: 1,
+              }}
+            />
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <GoogleSigninButton
+                style={{
+                  marginTop: 20,
+                  width: '100%',
+                  height: 50
+                }}
+                size={GoogleSigninButton.Size.Wide}
+                color={GoogleSigninButton.Color.Dark}
+                onPress={this.loginGoole}
+                disabled={this.state.isSigninInProgress} />
+            </View>
           </Content>
         </Container>
       );

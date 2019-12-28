@@ -1,6 +1,7 @@
 const firebase = require('firebase');
 
 module.exports = {
+  firebase,
   init: () => {
     const firebaseConfig = {
       apiKey: 'AIzaSyCfBYOe1yWeuZtPb7xuBFqdZBSG7SOliR8',
