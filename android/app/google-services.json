@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "296953664671",
+    "firebase_url": "https://ngobrol-8080.firebaseio.com",
+    "project_id": "ngobrol-8080",
+    "storage_bucket": "ngobrol-8080.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296953664671:android:7c59826cb866bd888efeaa",
+        "android_client_info": {
+          "package_name": "com.ngobrol"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296953664671-ihjoo0tblqm2oeqs0k9m8uklustobgru.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ngobrol",
+            "certificate_hash": "c162ee413ef4d9b7384c506902a111723db106d5"
+          }
+        },
+        {
+          "client_id": "296953664671-u3u4fibee2cmuorkn3otbbb39smfiv61.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ngobrol",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "296953664671-h5ug9nh15i368m0c9aauofpmv0vngi5d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4TGmG_TV-r5r0IXkqE3wOjR4gJ3O5MtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296953664671-h5ug9nh15i368m0c9aauofpmv0vngi5d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

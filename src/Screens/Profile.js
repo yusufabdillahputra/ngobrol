@@ -49,36 +49,37 @@ class Profile extends Component {
       photoUrl: null,
       phoneNumber: null,
       latitude: null,
-      longitude: null
+      longitude: null,
     };
   }
 
   async componentDidMount () {
-    await users().onAuthStateChanged(async user => {
-      if (user) {
-        await db().ref('users/'+user.uid).on('value', async snapshot => {
-          await this.setState({
-            isLoading: false,
-            UID: snapshot.val().uid_users,
-            email: snapshot.val().email_users,
-            displayName:  snapshot.val().displayName || null,
-            photoUrl: snapshot.val().photoUrl || null,
-            phoneNumber: snapshot.val().phoneNumber || null,
-            latitude: snapshot.val().latitude || null,
-            longitude: snapshot.val().longitude || null
-          });
-        })
-
-
-      } else {
-        this.props.navigation.replace('LoginScreen');
-      }
-    });
+    const user = users().currentUser;
+    if (user) {
+      await db().ref('users/' + user.uid).on('value', async snapshot => {
+        await this.setState({
+          isLoading: false,
+          UID: snapshot.val().uid_users,
+          email: snapshot.val().email_users,
+          displayName: snapshot.val().displayName || null,
+          photoUrl: snapshot.val().photoUrl || null,
+          phoneNumber: snapshot.val().phoneNumber || null,
+          latitude: snapshot.val().latitude || null,
+          longitude: snapshot.val().longitude || null,
+        });
+      });
+    } else {
+      this.props.navigation.replace('LoginScreen');
+    }
   }
 
   async onLogout () {
+    this.setState({
+      isLoading: true
+    })
     users().signOut().then(async (result) => {
       await this.setState({
+        isLoading: false,
         UID: null,
         email: null,
       });
@@ -92,10 +93,10 @@ class Profile extends Component {
     await setData('users/' + this.state.UID, {
       uid_users: this.state.UID,
       email_users: this.state.email,
-      displayName:  this.state.displayName,
+      displayName: this.state.displayName,
       phoneNumber: this.state.phoneNumber,
       latitude: this.state.latitude,
-      longitude: this.state.longitude
+      longitude: this.state.longitude,
     });
     Alert.alert(
       'Success',
@@ -112,7 +113,7 @@ class Profile extends Component {
       ],
       {cancelable: false},
     );
-  }
+  };
 
   render () {
     if (this.state.isLoading) {
@@ -159,7 +160,7 @@ class Profile extends Component {
                 borderBottomLeftRadius: 8,
                 borderTopLeftRadius: 8,
                 borderTopRightRadius: 8,
-                marginBottom: 40
+                marginBottom: 40,
               }}
             >
               <CardItem
@@ -189,7 +190,7 @@ class Profile extends Component {
               >
                 <Left
                   style={{
-                    flex: 0.2
+                    flex: 0.2,
                   }}
                 >
                   <Icon
@@ -199,7 +200,7 @@ class Profile extends Component {
                 </Left>
                 <Body
                   style={{
-                    flex: 1
+                    flex: 1,
                   }}
                 >
                   <Text>{this.state.email}</Text>
@@ -210,7 +211,7 @@ class Profile extends Component {
               >
                 <Left
                   style={{
-                    flex: 0.2
+                    flex: 0.2,
                   }}
                 >
                   <Icon
@@ -239,7 +240,7 @@ class Profile extends Component {
               >
                 <Left
                   style={{
-                    flex: 0.2
+                    flex: 0.2,
                   }}
                 >
                   <Icon
@@ -268,7 +269,7 @@ class Profile extends Component {
               >
                 <Left
                   style={{
-                    flex: 0.2
+                    flex: 0.2,
                   }}
                 >
                   <Text>
@@ -296,7 +297,7 @@ class Profile extends Component {
               >
                 <Left
                   style={{
-                    flex: 0.2
+                    flex: 0.2,
                   }}
                 >
                   <Text>
@@ -326,7 +327,7 @@ class Profile extends Component {
                 style={{
                   backgroundColor: RawColors.success,
                   borderBottomRightRadius: 8,
-                  borderBottomLeftRadius: 8
+                  borderBottomLeftRadius: 8,
                 }}
                 onPress={
                   event => this.onSubmitUpdate(event)

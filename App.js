@@ -21,6 +21,7 @@ class App extends Component {
 
     this.state = {
       isSplash: true,
+      user: [],
     };
   }
 
@@ -38,7 +39,7 @@ class App extends Component {
       return <AppSplash/>;
     } else {
       return (
-        <Navigation/>
+        <Navigation />
       );
     }
   }

@@ -6,13 +6,16 @@
  */
 
 import React, { Component } from 'react';
-import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-community/google-signin';
+import {
+  GoogleSignin,
+  statusCodes,
+  GoogleSigninButton,
+} from '@react-native-community/google-signin';
 import { RawColors } from '../Global/Style/init';
 import {
   Container,
   Header,
   Title,
-  Right,
   Left,
   Body,
   Content,
@@ -29,47 +32,21 @@ import ScreenLoading from '../Components/Loading/ScreenLoading';
 
 import { login, users, firebase, db } from '../Utils/Services/initialize';
 
-GoogleSignin.configure({
-  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  webClientId: '99290175334-kg1dn2jsrgmd7qt7rj5kkr1q5oo9rijv.apps.googleusercontent.com',
-});
-
 class Login extends Component {
 
   constructor (props) {
     super(props);
 
+    const currentUser = users().currentUser;
+    if (currentUser !== null) {
+      this.pushToHome();
+    }
+
     this.state = {
       email: '',
       password: '',
       isLoading: false,
-      isSubmit: false,
-      isAuth: false,
-      errorMessage: null,
-      Onprosess: false,
-      visible: false,
     };
-  }
-
-  async componentDidMount () {
-    await users().onAuthStateChanged(async user => {
-      if (user) {
-        await this.setState({
-          isAuth: true,
-        });
-        await this.props.navigation.replace('HomeScreen');
-      }
-    });
-  }
-
-  async componentDidUpdate (prevProps, prevState) {
-    if (prevState.isSubmit !== this.state.isSubmit) {
-      await this.setState({
-        isSubmit: false,
-        isLoading: false,
-      });
-      await this.authentication();
-    }
   }
 
   clearState () {
@@ -81,13 +58,12 @@ class Login extends Component {
 
   async authentication () {
     try {
-      await this.setState({
-        isLoading: true,
-        isAuth: true,
-      });
       const responseFirebase = await login(this.state.email, this.state.password);
       await this.clearState();
       if (responseFirebase) {
+        await this.setState({
+          isLoading: false,
+        });
         await this.props.navigation.replace('HomeScreen');
       } else {
         await this.setState({
@@ -123,22 +99,40 @@ class Login extends Component {
     }
   }
 
-  hideToast = () => {
-    this.setState({
-      visible: false,
+  async onSubmit () {
+    await Keyboard.dismiss();
+    await this.setState({
+      isLoading: true,
     });
+    await this.authentication();
+  }
+
+  async componentDidMount () {
+    await GoogleSignin.configure({
+      scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+      webClientId: '296953664671-h5ug9nh15i368m0c9aauofpmv0vngi5d.apps.googleusercontent.com',
+    });
+    const currentUser = await users().currentUser;
+    if (currentUser !== null) {
+      await this.pushToHome();
+    }
+  }
+
+  pushToHome = () => {
+    this.props.navigation.navigate('HomeScreen');
   };
 
-  loginGoole = async () => {
-    this.setState({Onprosess: true});
+  signInGoogle = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
       const userInfo = await GoogleSignin.signIn();
       const {idToken, accessToken} = userInfo;
       const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
       await firebase.auth().signInWithCredential(credential)
         .then(async res => {
-          const data = db().ref(`users/${res.user.uid}`);
+          const data = await db().ref(`users/${res.user.uid}`);
           if (data) {
             await db().ref('users/' + res.user.uid)
               .update({
@@ -150,6 +144,7 @@ class Login extends Component {
                 longitude: this.state.longitude || null,
                 uid_users: res.user.uid,
               });
+            await this.pushToHome();
           } else {
             await db().ref('users/' + res.user.uid)
               .set({
@@ -161,46 +156,25 @@ class Login extends Component {
                 longitude: this.state.longitude || null,
                 uid_users: res.user.uid,
               });
+            await this.pushToHome();
           }
         })
         .catch(err => {
           console.log(err);
         });
-      this.setState({Onprosess: false});
     } catch (error) {
+      console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        this.setState({Onprosess: false});
-        return;
+        console.log('User Cancelled the Login Flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        this.setState({
-          errorMessage: 'In Progress..',
-          visible: true,
-          Onprosess: false,
-        }, () => this.hideToast());
+        console.log('Signing In');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        this.setState({
-          errorMessage: 'Please Install Google Play Services',
-          visible: true,
-          Onprosess: false,
-        }, () => this.hideToast());
+        console.log('Play Services Not Available or Outdated');
       } else {
-        this.setState({
-          errorMessage: error.code || error.message,
-          visible: true,
-          Onprosess: false,
-        }, () => this.hideToast());
+        console.log('Some Other Error Happened');
       }
     }
-
   };
-
-  onSubmit () {
-    Keyboard.dismiss();
-    this.setState({
-      isSubmit: true,
-      isLoading: true,
-    });
-  }
 
   render () {
     if (this.state.isLoading) {
@@ -354,8 +328,8 @@ class Login extends Component {
                 }}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Dark}
-                onPress={this.loginGoole}
-                disabled={this.state.isSigninInProgress}/>
+                onPress={this.signInGoogle}
+              />
             </View>
           </Content>
         </Container>
